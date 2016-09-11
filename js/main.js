@@ -90,9 +90,10 @@ var GameState = {
 		},
         switchAnimal: function (sprite, event) {
                  
-            if(){
-                return
+            if(this.isMoving){
+                return false;
             }
+            
             this.isMoving = true;
             var newAnimal, endX;
             
@@ -110,6 +111,9 @@ var GameState = {
             
             var newAnimalMovement = this.game.add.tween(newAnimal);
             newAnimalMovement.to({x: this.game.world.centerX}, 1000);
+            newAnimalMovement.onComplete.add(function(){
+                this.isMoving = false;
+            }, this);
             newAnimalMovement.start();
             
             var currentAnimalMovement = this.game.add.tween(this.currentAnimal);
