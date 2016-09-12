@@ -1,7 +1,11 @@
 
 
 var GameState = {
+    
+       
 		preload: function () {
+            
+            //load images
             this.load.image('background', 'assets/images/background.png');
             this.load.image('fence', 'assets/images/fence.png');
             this.load.image('chicken', 'assets/images/chicken.png');
@@ -9,10 +13,14 @@ var GameState = {
             this.load.image('pig', 'assets/images/pig.png');
             this.load.image('sheep', 'assets/images/sheep.png');
             this.load.image('dog', 'assets/images/dog.png');
-            this.load.image('cow', 'assets/images/cow.png');
+            this.load.image('cowShadow', 'assets/images/cowShadow.png');
             this.load.image('cat', 'assets/images/cat.png');
             this.load.image('arrow', 'assets/images/arrow.png');
             
+            //load spritesheet
+            this.load.spritesheet('cowTalk', 'assets/images/cowTalk.png', 180, 200, 4);
+            
+            //load audio
             this.load.audio('horseSound',['assets/sfx/horse.ogg','assets/sfx/horse.mp3']);
             this.load.audio('pigSound',['assets/sfx/pigs.ogg', 'assets/sfx/pigs.mp3']);
             this.load.audio('catSound',['assets/sfx/cat.ogg', 'assets/sfx/cat.mp3']);
@@ -20,6 +28,8 @@ var GameState = {
             this.load.audio('chickenSound',['assets/sfx/chicken.ogg', 'assets/sfx/chicken.mp3']);
             this.load.audio('sheepSound',['assets/sfx/sheep.ogg', 'assets/sfx/sheep.mp3']);
             this.load.audio('dogSound',['assets/sfx/dog.ogg', 'assets/sfx/dog.mp3']);
+            this.load.audio('whatAnimal', ['assets/sfx/whatAnimal.mp3']);
+            this.load.audio('cowAnswear', ['assets/sfx/cowAnswear.mp3']);
 
 
 		},
@@ -41,33 +51,45 @@ var GameState = {
                 { key: 'pig', text: 'PIG', audio: 'pigSound'},
                 { key: 'sheep', text: 'SHEEP', audio: 'sheepSound'},
                 { key: 'dog', text: 'DOG', audio: 'dogSound'},
-                { key: 'cow', text: 'COW', audio: 'cowSound'},
+                { key: 'cowShadow', text: 'COW', audio: 'cowSound', audio2: 'cowAnswear'},
                 { key: 'cat', text: 'CAT', audio: 'catSound'}
             ];
+
+            //Create a group to animals info
+            this.animals = this.game.add.group();
             
             var self = this, animal;
             
-            this.animals = this.game.add.group();
             animalData.forEach(function (element) {
-                animal = self.animals.create(-1000, self.game.world.centerY, element.key);         
-                animal.customParams = {text: element.text, sound: self.game.add.audio(element.audio)};
-                animal.anchor.setTo(0.5);
-                animal.inputEnabled = true;
-                animal.input.pixelPerfectClick = true;
-                animal.events.onInputDown.add(self.animateAnimal, self);
+            animal = self.animals.create(-1000, self.game.world.centerY, element.key, 1);  
+
+            animal.customParams = {text: element.text, sound: self.game.add.audio(element.audio), sound2: self.game.add.audio(element.audio2)};
+
+            animal.anchor.setTo(0.5);
+                
+            //Animations
+            cowTalk = animal.animations.add('cowTalk', [0, 1, 2, 3], 2, false);
+
+            animal.inputEnabled = true;
+
+            animal.input.pixelPerfectClick = true;
+            
+            animal.events.onInputDown.add(self.animateAnimal, self);
                                 
                                });
             
             //Place the first animal in the center of the screen
             this.currentAnimal = this.animals.next();
             this.currentAnimal.position.set(this.game.world.centerX, this.game.world.centerY);
-            
+           
          
             
             //Right arrow sprite
             this.rightArrow = this.game.add.sprite(580, this.game.world.centerY, 'arrow');
             this.rightArrow.anchor.setTo(0.5);
             this.rightArrow.customParams = {direction: 1};
+            
+        
             
             //Right arrow input control
             this.rightArrow.inputEnabled = true;
@@ -95,6 +117,8 @@ var GameState = {
             
                //Show animal name
             this.showText(this.currentAnimal);
+            
+            whatAnimal=this.game.add.audio('whatAnimal');
 
 		},
 		update: function () {
@@ -139,10 +163,19 @@ var GameState = {
             currentAnimalMovement.start();
             
             this.currentAnimal = newAnimal;
+            
         },
             animateAnimal: function ( sprite, event) {
-            console.log('animate animal');
-            sprite.customParams.sound.play();
+                
+                var timeCheck=0;
+                //sprite.play('idleAnimate');
+                whatAnimal.play();
+                setTimeout(function () {sprite.customParams.sound.play()}, 1500);
+                setTimeout(function () {sprite.customParams.sound2.play()}, 6000);
+               cowTalk.play();
+                //sprite.customParams.sound.play();
+                
+           
     },
     
             showText: function (animal) {
@@ -157,6 +190,6 @@ var GameState = {
     };
 
 var game = new Phaser.Game(640, 360, Phaser.AUTO);
-
+var whatAnimal;
 game.state.add('GameState', GameState);
 game.state.start('GameState');
