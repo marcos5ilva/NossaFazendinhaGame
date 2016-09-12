@@ -12,6 +12,15 @@ var GameState = {
             this.load.image('cow', 'assets/images/cow.png');
             this.load.image('cat', 'assets/images/cat.png');
             this.load.image('arrow', 'assets/images/arrow.png');
+            
+            this.load.audio('horseSound',['assets/sfx/horse.ogg','assets/sfx/horse.mp3']);
+            this.load.audio('pigSound',['assets/sfx/pigs.ogg', 'assets/sfx/pigs.mp3']);
+            this.load.audio('catSound',['assets/sfx/cat.ogg', 'assets/sfx/cat.mp3']);
+            this.load.audio('cowSound',['assets/sfx/cow.ogg', 'assets/sfx/cow.mp3']);
+            this.load.audio('chickenSound',['assets/sfx/chicken.ogg', 'assets/sfx/chicken.mp3']);
+            this.load.audio('sheepSound',['assets/sfx/sheep.ogg', 'assets/sfx/sheep.mp3']);
+            this.load.audio('dogSound',['assets/sfx/dog.ogg', 'assets/sfx/dog.mp3']);
+
 
 		},
 		create: function () {
@@ -27,13 +36,13 @@ var GameState = {
             
             //Group for animals
             var animalData = [
-                { key: 'chicken', text: 'CHICKEN'},
-                { key: 'horse', text: 'HORSE'},
-                { key: 'pig', text: 'PIG'},
-                { key: 'sheep', text: 'SHEEP'},
-                { key: 'dog', text: 'DOG'},
-                { key: 'cow', text: 'COW'},
-                { key: 'cat', text: 'CAT'}
+                { key: 'chicken', text: 'CHICKEN', audio: 'chickenSound'},
+                { key: 'horse', text: 'HORSE', audio: 'horseSound'},
+                { key: 'pig', text: 'PIG', audio: 'pigSound'},
+                { key: 'sheep', text: 'SHEEP', audio: 'sheepSound'},
+                { key: 'dog', text: 'DOG', audio: 'dogSound'},
+                { key: 'cow', text: 'COW', audio: 'cowSound'},
+                { key: 'cat', text: 'CAT', audio: 'catSound'}
             ];
             
             var self = this, animal;
@@ -41,7 +50,7 @@ var GameState = {
             this.animals = this.game.add.group();
             animalData.forEach(function (element) {
                 animal = self.animals.create(-1000, self.game.world.centerY, element.key);         
-                animal.customParams = {text: element.text};
+                animal.customParams = {text: element.text, sound: self.game.add.audio(element.audio)};
                 animal.anchor.setTo(0.5);
                 animal.inputEnabled = true;
                 animal.input.pixelPerfectClick = true;
@@ -49,9 +58,11 @@ var GameState = {
                                 
                                });
             
+            //Place the first animal in the center of the screen
             this.currentAnimal = this.animals.next();
             this.currentAnimal.position.set(this.game.world.centerX, this.game.world.centerY);
             
+         
             
             //Right arrow sprite
             this.rightArrow = this.game.add.sprite(580, this.game.world.centerY, 'arrow');
@@ -81,6 +92,9 @@ var GameState = {
             this.leftArrow.events.onInputDown.add(this.switchAnimal, this);
             
             this.fence = this.game.add.sprite(1, 228, 'fence');
+            
+               //Show animal name
+            this.showText(this.currentAnimal);
 
 		},
 		update: function () {
@@ -95,9 +109,12 @@ var GameState = {
             }
             
             this.isMoving = true;
+            
+        //Hiding animal name
+            this.animalText.visible = false;
+            
             var newAnimal, endX;
             
-
             if(sprite.customParams.direction > 0){
                             newAnimal = this.animals.next();
                             newAnimal.x = -newAnimal.width/2;
@@ -113,6 +130,7 @@ var GameState = {
             newAnimalMovement.to({x: this.game.world.centerX}, 1000);
             newAnimalMovement.onComplete.add(function(){
                 this.isMoving = false;
+                this.showText(newAnimal);
             }, this);
             newAnimalMovement.start();
             
@@ -123,8 +141,19 @@ var GameState = {
             this.currentAnimal = newAnimal;
         },
             animateAnimal: function ( sprite, event) {
-            console.log('animate animal')
-    }
+            console.log('animate animal');
+            sprite.customParams.sound.play();
+    },
+    
+            showText: function (animal) {
+                if(!this.animalText){
+                    this.animalText = this.game.add.text(this.game.width/2, this.game.height * 0.85, '');
+                    this.animalText.anchor.setTo(0.5);
+                }
+                this.animalText.setText(animal.customParams.text);
+                this.animalText.addColor("#eeee00",0);
+                this.animalText.visible = true;
+            }
     };
 
 var game = new Phaser.Game(640, 360, Phaser.AUTO);
