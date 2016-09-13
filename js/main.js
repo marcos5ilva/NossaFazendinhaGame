@@ -18,7 +18,7 @@ var GameState = {
             this.load.image('arrow', 'assets/images/arrow.png');
             
             //load spritesheet
-            this.load.spritesheet('cowTalk', 'assets/images/cowTalk.png', 180, 200, 4);
+            this.load.spritesheet('cowAnim', 'assets/images/cowAnim.png', 181.57, 200, 7);
             
             //load audio
             this.load.audio('horseSound',['assets/sfx/horse.ogg','assets/sfx/horse.mp3']);
@@ -42,7 +42,12 @@ var GameState = {
             this.scale.pageAlignHorizontally = true;
             this.scale.pageAlignVertically = true;
             
+            //Insert background
             this.background = this.game.add.sprite(0, 0, 'background');
+            
+            //Insert Fence
+            this.fence = this.game.add.sprite(1, 130, 'fence');
+            this.fence.scale.setTo(0.7);
             
             //Group for animals
             var animalData = [
@@ -51,7 +56,7 @@ var GameState = {
                 { key: 'pig', text: 'PIG', audio: 'pigSound'},
                 { key: 'sheep', text: 'SHEEP', audio: 'sheepSound'},
                 { key: 'dog', text: 'DOG', audio: 'dogSound'},
-                { key: 'cowShadow', text: 'COW', audio: 'cowSound', audio2: 'cowAnswear'},
+                { key: 'cowAnim', text: 'COW', audio: 'cowSound', audio2: 'cowAnswear'},
                 { key: 'cat', text: 'CAT', audio: 'catSound'}
             ];
 
@@ -61,21 +66,23 @@ var GameState = {
             var self = this, animal;
             
             animalData.forEach(function (element) {
-            animal = self.animals.create(-1000, self.game.world.centerY, element.key, 1);  
+                animal = self.animals.create(-1000, self.game.world.centerY, element.key, 0);  
 
-            animal.customParams = {text: element.text, sound: self.game.add.audio(element.audio), sound2: self.game.add.audio(element.audio2)};
+                animal.customParams = {text: element.text, sound: self.game.add.audio(element.audio), sound2: self.game.add.audio(element.audio2)};
 
-            animal.anchor.setTo(0.5);
-                
-            //Animations
-            cowTalk = animal.animations.add('cowTalk', [0, 1, 2, 3], 2, false);
+                animal.anchor.setTo(0.5);
 
-            animal.inputEnabled = true;
+                //Animations
+                animal.animations.add('animateTalk', [ 1, 2, 3, 4], 2, false);
+                animal.animations.add('animateIdle', [ 5, 6], 2, true);
 
-            animal.input.pixelPerfectClick = true;
-            
-            animal.events.onInputDown.add(self.animateAnimal, self);
-                                
+
+                animal.inputEnabled = true;
+
+                animal.input.pixelPerfectClick = true;
+
+                animal.events.onInputDown.add(self.animateAnimal, self);
+
                                });
             
             //Place the first animal in the center of the screen
@@ -113,7 +120,7 @@ var GameState = {
             this.leftArrow.input.pixelPerfectClick = true;
             this.leftArrow.events.onInputDown.add(this.switchAnimal, this);
             
-            this.fence = this.game.add.sprite(1, 228, 'fence');
+           
             
                //Show animal name
             this.showText(this.currentAnimal);
@@ -166,17 +173,15 @@ var GameState = {
             
         },
             animateAnimal: function ( sprite, event) {
-                
-                var timeCheck=0;
-                //sprite.play('idleAnimate');
+               
                 whatAnimal.play();
                 setTimeout(function () {sprite.customParams.sound.play()}, 1500);
-                setTimeout(function () {sprite.customParams.sound2.play()}, 6000);
-               cowTalk.play();
-                //sprite.customParams.sound.play();
+                setTimeout(function () {sprite.customParams.sound2.play()}, 5000);
+                setTimeout(function () { sprite.play('animateTalk');sprite.customParams.sound.play();}, 7000);
+                setTimeout(function () { sprite.play('animateIdle')}, 9000);
                 
            
-    },
+            },
     
             showText: function (animal) {
                 if(!this.animalText){
