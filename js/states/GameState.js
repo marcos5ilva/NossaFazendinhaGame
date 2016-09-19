@@ -1,6 +1,4 @@
-
-
-/*var GameState = {
+var GameState = {
     
        
 		preload: function () {
@@ -220,13 +218,4 @@
             },
     
             
-    };*/
-
-var game = new Phaser.Game(640, 360, Phaser.AUTO);
-var whatAnimal, numbers, theme;
-
-game.state.add('GameState', GameState);
-game.state.add('HomeState', GameState);
-game.state.add('PreloadState', GameState);
-game.state.add('BootState', GameState);
-game.state.start('GameState');
+    };
